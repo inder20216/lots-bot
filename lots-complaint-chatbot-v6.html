@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOTS Wholesale Solutions – AI Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════
+   BACKGROUND PAGE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #D01C2A; --red-dark: #A8131F; --red-light: #FEF2F2;
+  --dark: #1A1A1A; --mid: #444; --soft: #888; --line: #E8E8E8;
+  --white: #FFFFFF;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #F8F8F6;
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+.chat-suggestions {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 4px 2px 8px;
+}
+.suggestion-label {
+  font-size: 10.5px; color: var(--soft); font-weight: 500;
+  padding-left: 2px; margin-bottom: 1px;
+}
+.suggestion-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.suggestion-chip {
+  background: #FEF2F2; border: 1px solid rgba(208,28,42,0.25);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 12px; color: #B91C1C; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.suggestion-chip .chip-arrow { font-size: 11px; opacity: 0.7; }
+.suggestion-chip:hover { background: var(--red); color: white; }
+.suggestion-chip:hover .chip-arrow { opacity: 1; }
+
+/* Order Options Card */
+.order-opts-card { background:white; border:1.5px solid #E8E8E8; border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,0.07); }
+.order-opts-head { background:var(--red); padding:9px 13px; }
+.order-opts-head h4 { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; color:white; }
+.order-opts { display:flex; flex-direction:column; gap:8px; padding:12px 13px; }
+.order-opt-btn { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid #E8E8E8; border-radius:10px; background:#FAFAFA; cursor:pointer; transition:all 0.18s; text-align:left; font-family:'DM Sans',sans-serif; width:100%; }
+.order-opt-btn:hover { border-color:var(--red); background:var(--red-light); }
+.opt-icon { font-size:22px; flex-shrink:0; }
+.opt-text { flex:1; }
+.opt-title { font-size:13px; font-weight:600; color:var(--dark); }
+.opt-sub { font-size:11px; color:var(--soft); margin-top:1px; }
+
+/* Product Search Card */
+.ps-card { background:white; border:1.5px solid #E8E8E8; border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,0.07); }
+.ps-head { background:var(--red); padding:9px 13px; display:flex; align-items:center; justify-content:space-between; }
+.ps-head h4 { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; color:white; }
+.ps-head span { font-size:10px; color:rgba(255,255,255,0.8); }
+.ps-body { padding:10px 13px; }
+.ps-search-bar { display:flex; align-items:center; border:1.5px solid #E8E8E8; border-radius:8px; background:#FAFAFA; overflow:hidden; margin-bottom:8px; transition:border-color 0.2s; }
+.ps-search-bar:focus-within { border-color:var(--red); background:white; }
+.ps-search-icon { width:32px; height:36px; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--soft); flex-shrink:0; }
+.ps-input { flex:1; border:none; background:transparent; outline:none; font-size:12.5px; font-family:'DM Sans',sans-serif; padding:8px 4px; color:var(--dark); }
+.ps-input::placeholder { color:#C8C8C8; }
+.ps-results { max-height:180px; overflow-y:auto; border:1px solid #F0F0F0; border-radius:8px; display:none; margin-bottom:4px; }
+.ps-results.show { display:block; }
+.ps-result { display:flex; align-items:center; gap:8px; padding:7px 10px; border-bottom:1px solid #F3F3F3; cursor:pointer; transition:background 0.15s; }
+.ps-result:last-child { border-bottom:none; }
+.ps-result:hover { background:var(--red-light); }
+.ps-result-info { flex:1; min-width:0; }
+.ps-result-name { font-size:12px; font-weight:600; color:var(--dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ps-result-meta { font-size:10px; color:var(--soft); margin-top:1px; }
+.ps-price { font-size:12px; font-weight:700; color:var(--red); }
+.ps-mrp { font-size:10px; color:#BBB; text-decoration:line-through; margin-left:3px; }
+.ps-disc { font-size:9px; color:#15803D; background:#DCFCE7; border-radius:4px; padding:1px 4px; margin-left:3px; }
+.ps-add { background:var(--red); color:white; border:none; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; white-space:nowrap; flex-shrink:0; }
+.ps-add:hover { background:var(--red-dark); }
+.ps-empty,.ps-hint { text-align:center; padding:14px; color:#BBB; font-size:11px; }
+.cart-chips-area { margin-bottom:8px; }
+.cart-chips-label { font-size:9.5px; font-weight:700; color:var(--soft); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.cart-chips-row { display:flex; flex-wrap:wrap; gap:5px; }
+.cart-chip { display:flex; align-items:center; gap:4px; background:var(--red-light); border:1px solid rgba(208,28,42,0.2); border-radius:20px; padding:3px 6px 3px 10px; font-size:11.5px; }
+.cart-chip-name { font-weight:500; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--dark); }
+.chip-qty-ctrl { display:flex; align-items:center; gap:2px; margin-left:4px; }
+.chip-qty-btn { width:16px; height:16px; background:rgba(208,28,42,0.15); border:none; border-radius:50%; font-size:10px; color:var(--red); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
+.chip-qty-btn:hover { background:var(--red); color:white; }
+.chip-qty-num { font-size:11px; font-weight:700; min-width:14px; text-align:center; }
+.chip-remove { width:14px; height:14px; background:none; border:none; cursor:pointer; color:#999; font-size:10px; display:flex; align-items:center; justify-content:center; margin-left:2px; }
+.chip-remove:hover { color:var(--red); }
+.ps-cart-bar { border-top:1px solid #F0F0F0; padding-top:10px; margin-top:4px; display:none; }
+.ps-cart-bar.show { display:block; }
+.ps-cart-summary { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.ps-cart-label { font-size:11px; color:var(--soft); }
+.ps-cart-total { font-size:14px; font-weight:700; color:var(--dark); font-family:'Rajdhani',sans-serif; }
+.ps-cart-submit { width:100%; background:var(--red); color:white; border:none; border-radius:8px; padding:9px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.3px; cursor:pointer; transition:all 0.2s; }
+.ps-cart-submit:hover { background:var(--red-dark); }
+.ps-cart-submit:disabled { background:#CCC; cursor:not-allowed; }
+
+/* Repeat Order Card */
+.ro-card { background:white; border:1.5px solid #E8E8E8; border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,0.07); }
+.ro-head { background:var(--red); padding:9px 13px; }
+.ro-head h4 { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; color:white; }
+.ro-body { padding:11px 13px; }
+.ro-list { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.ro-item { display:flex; align-items:center; gap:8px; padding:7px 8px; background:#FAFAFA; border:1px solid #F0F0F0; border-radius:8px; }
+.ro-name { flex:1; font-size:12px; font-weight:500; color:var(--dark); }
+.ro-ctrl { display:flex; align-items:center; gap:4px; }
+.ro-btn { width:22px; height:22px; background:rgba(208,28,42,0.12); border:none; border-radius:50%; font-size:14px; color:var(--red); cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:700; line-height:1; }
+.ro-btn:hover { background:var(--red); color:white; }
+.ro-qty-val { font-size:12px; font-weight:700; min-width:20px; text-align:center; }
+.ro-del { width:22px; height:22px; background:none; border:1px solid #E8E8E8; border-radius:50%; font-size:11px; cursor:pointer; color:#999; display:flex; align-items:center; justify-content:center; }
+.ro-del:hover { border-color:var(--red); color:var(--red); }
+.ro-submit { width:100%; background:var(--red); color:white; border:none; border-radius:8px; padding:9px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; }
+.ro-submit:hover { background:var(--red-dark); }
+
+/* Back button */
+.btn-back { background:none; border:none; color:var(--soft); font-size:11px; cursor:pointer; padding:3px 0 6px; font-family:'DM Sans',sans-serif; display:inline-flex; align-items:center; gap:3px; }
+.btn-back:hover { color:var(--red); }
+
+/* Sample ID chips inside forms */
+.dc-sample-chip { display:inline-block; background:white; border:1px solid rgba(208,28,42,0.35); border-radius:12px; padding:2px 8px; font-size:10.5px; font-weight:600; color:var(--red); cursor:pointer; margin:1px 2px; transition:all 0.15s; }
+.dc-sample-chip:hover { background:var(--red); color:white; }
+
+/* Customer found card */
+.customer-found-card { background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:10px; padding:11px 13px; margin-bottom:10px; }
+.customer-found-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.customer-found-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px 10px; font-size:11px; }
+
+.customer-found-label { color:#888; font-size:9.5px; text-transform:uppercase; letter-spacing:0.3px; }
+.customer-found-value { font-weight:600; color:var(--dark); word-break:break-all; }
+
+/* NAV */
+nav {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-box {
+  width: 38px; height: 38px; background: var(--red); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+  color: white; letter-spacing: -0.5px;
+}
+.nav-logo-text h1 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px; color: var(--dark); }
+.nav-logo-text span { font-size: 10px; color: var(--soft); display: block; margin-top: -2px; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a { font-size: 13.5px; font-weight: 500; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--red); }
+.nav-cta {
+  background: var(--red); color: white; border: none;
+  padding: 9px 20px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--red-dark); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D0A0E 50%, #D01C2A 100%);
+  padding: 80px 40px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(208,28,42,0.25); border: 1px solid rgba(208,28,42,0.4);
+  color: #FCA5A5; border-radius: 50px; padding: 5px 14px;
+  font-size: 12px; font-weight: 600; margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+.hero h1 {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  color: white; line-height: 1.05; margin-bottom: 18px;
+  position: relative; z-index: 1;
+}
+.hero h1 em { font-style: normal; color: #F87171; }
+.hero p {
+  font-size: 1.1rem; color: rgba(255,255,255,0.7);
+  max-width: 540px; margin: 0 auto 32px; line-height: 1.7;
+  position: relative; z-index: 1;
+}
+.hero-btns { display: flex; gap: 14px; justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--red); color: white; border: none;
+  padding: 13px 28px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-primary:hover { background: var(--red-dark); transform: translateY(-2px); }
+.btn-outline {
+  background: transparent; color: white;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  padding: 13px 28px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+/* STATS BAR */
+.stats-bar {
+  background: white; border-bottom: 1px solid var(--line);
+  display: flex; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+.stat-item {
+  padding: 22px 40px; text-align: center;
+  border-right: 1px solid var(--line);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 28px; color: var(--red); }
+.stat-lbl { font-size: 12px; color: var(--soft); margin-top: 2px; }
+
+/* SECTIONS */
+.section { padding: 70px 40px; max-width: 1200px; margin: 0 auto; }
+.section-title {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: 2.2rem; color: var(--dark); text-align: center; margin-bottom: 8px;
+}
+.section-title em { font-style: normal; color: var(--red); }
+.section-sub { text-align: center; color: var(--soft); font-size: 14.5px; margin-bottom: 48px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+/* SERVICES GRID */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.service-card {
+  background: white; border-radius: 16px; padding: 28px 24px;
+  border: 1.5px solid var(--line);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  transition: all 0.25s;
+}
+.service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(208,28,42,0.12); border-color: rgba(208,28,42,0.2); }
+.sc-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 16px;
+}
+.sc-icon.red   { background: linear-gradient(135deg, #D01C2A, #F87171); }
+.sc-icon.dark  { background: linear-gradient(135deg, #1A1A1A, #444); }
+.sc-icon.amber { background: linear-gradient(135deg, #D97706, #FCD34D); }
+.sc-icon.green { background: linear-gradient(135deg, #059669, #34D399); }
+.service-card h3 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--dark); margin-bottom: 8px; }
+.service-card p { font-size: 13.5px; color: var(--soft); line-height: 1.65; }
+
+/* STORES SECTION */
+.stores-section { background: white; padding: 70px 40px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; }
+.store-card {
+  background: #F9F9F9; border-radius: 12px; padding: 18px 16px;
+  border: 1.5px solid var(--line); transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.store-card:hover { border-color: var(--red); background: var(--red-light); }
+.store-code {
+  display: inline-flex; background: var(--red); color: white;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+  padding: 2px 8px; border-radius: 5px; width: fit-content;
+}
+.store-name { font-weight: 600; font-size: 14px; color: var(--dark); }
+.store-addr { font-size: 11.5px; color: var(--soft); line-height: 1.5; }
+.store-time { font-size: 11px; color: var(--red); font-weight: 500; }
+
+/* WHY SECTION */
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.why-img {
+  background: linear-gradient(135deg, #1A1A1A 0%, #D01C2A 100%);
+  border-radius: 20px; padding: 48px 40px; color: white;
+}
+.why-img h3 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.8rem; margin-bottom: 16px; }
+.why-img p { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.7; }
+.why-list { display: flex; flex-direction: column; gap: 20px; }
+.why-item { display: flex; gap: 14px; align-items: flex-start; }
+.why-dot {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--red-light); border: 1.5px solid rgba(208,28,42,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.why-item h4 { font-weight: 600; font-size: 14px; color: var(--dark); margin-bottom: 3px; }
+.why-item p { font-size: 13px; color: var(--soft); line-height: 1.6; }
+
+/* MEMBERSHIP CTA */
+.membership-cta {
+  background: linear-gradient(135deg, #D01C2A 0%, #1A1A1A 100%);
+  border-radius: 20px; padding: 56px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 32px; flex-wrap: wrap;
+}
+.membership-cta h2 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 2rem; color: white; margin-bottom: 8px; }
+.membership-cta p { color: rgba(255,255,255,0.72); font-size: 14.5px; max-width: 400px; }
+.membership-cta .btn-white {
+  background: white; color: var(--red); border: none;
+  padding: 14px 32px; border-radius: 10px; font-size: 14px;
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+  font-family: 'Rajdhani', sans-serif; transition: all 0.2s;
+}
+.membership-cta .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+/* FOOTER */
+footer {
+  background: #111; color: rgba(255,255,255,0.6);
+  padding: 48px 40px 24px;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto 40px; }
+.footer-brand .nav-logo-box { margin-bottom: 12px; }
+.footer-brand p { font-size: 13px; line-height: 1.7; max-width: 240px; }
+.footer-col h4 { color: white; font-weight: 600; font-size: 13px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+.footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; margin-bottom: 9px; transition: color 0.2s; }
+.footer-col a:hover { color: white; }
+.footer-bottom { text-align: center; font-size: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); max-width: 1200px; margin: 0 auto; }
+
+@media(max-width:768px){
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 50px 20px; }
+  .stats-bar { flex-wrap: wrap; }
+  .stat-item { padding: 16px 24px; flex: 1 1 40%; }
+  .section { padding: 48px 20px; }
+  .stores-section { padding: 48px 20px; }
+  .why-grid { grid-template-columns: 1fr; }
+  .membership-cta { padding: 36px 28px; text-align: center; justify-content: center; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+
+
+/* ═══════════════════════════════════════════
+   FLOATING CHAT WIDGET  (OpenMind style)
+═══════════════════════════════════════════ */
+.chat-widget {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 9999;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Launcher bubble */
+.chat-launcher {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--red) 0%, #FF4D5E 100%);
+  color: white; border: none; border-radius: 50px;
+  padding: 13px 22px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(208,28,42,0.4);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+}
+.chat-launcher:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(208,28,42,0.5); }
+.launcher-icon { font-size: 18px; animation: bounce 2.5s infinite; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} 60%{transform:translateY(-3px)} }
+.notif-badge {
+  position: absolute; top: -7px; right: -7px;
+  background: #1A1A1A; color: white; border-radius: 50%;
+  width: 22px; height: 22px;
+  display: none; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; border: 2px solid white;
+  animation: pulse-b 2s infinite;
+}
+@keyframes pulse-b { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+/* Chat panel */
+.chat-panel {
+  position: fixed;
+  bottom: 25px; right: 24px;
+  width: 370px; height: 500px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 16px 52px rgba(0,0,0,0.16), 0 2px 12px rgba(0,0,0,0.08);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #EBEBEB;
+  transform-origin: bottom right;
+  animation: panelIn 0.25s ease;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+.chat-panel.open { display: flex; }
+
+/* Panel header */
+.panel-head {
+  background: white;
+  border-bottom: 1px solid #EBEBEB;
+  padding: 10px 14px 8px;
+  flex-shrink: 0;
+}
+.panel-head-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;
+}
+.panel-head-left { display: flex; align-items: center; gap: 9px; }
+.panel-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--red); display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0; position: relative;
+}
+.panel-av-dot {
+  position: absolute; bottom: 1px; right: 1px;
+  width: 9px; height: 9px; background: #22C55E;
+  border-radius: 50%; border: 2px solid white;
+}
+.panel-head-info h4 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px; color: var(--dark); }
+.panel-head-info p  { font-size: 10.5px; color: #22C55E; font-weight: 500; }
+.panel-close {
+  background: #F5F5F5; border: none; border-radius: 8px;
+  width: 30px; height: 30px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--soft); transition: all 0.2s;
+}
+.panel-close:hover { background: #EBEBEB; color: var(--dark); }
+.panel-restart {
+  background: #F5F5F5; border: none; border-radius: 8px;
+  width: 30px; height: 30px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--soft); transition: all 0.2s;
+}
+.panel-restart:hover { background: var(--red-light); color: var(--red); }
+
+/* Promo ticker */
+.panel-ticker {
+  background: linear-gradient(135deg, #D01C2A 0%, #9B1219 100%);
+  padding: 5px 12px;
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0; cursor: pointer;
+  border-bottom: 1px solid rgba(208,28,42,0.2);
+  overflow: hidden;
+}
+.panel-ticker:hover { background: linear-gradient(135deg, #B01624 0%, #7D0E14 100%); }
+.ticker-dot { width: 5px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 50%; flex-shrink: 0; animation: pulse-d 2s infinite; }
+@keyframes pulse-d { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.ticker-text { font-size: 10.5px; color: white; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Hint chips row */
+.hint-row {
+  background: #FEF9F9; border-bottom: 1px solid #FCE7E7;
+  padding: 6px 10px; display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0; overflow-x: auto;
+}
+.hint-row::-webkit-scrollbar { display: none; }
+.hint-lbl { font-size: 9.5px; color: var(--red); font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.hint-chip {
+  background: white; border: 1px solid rgba(208,28,42,0.22);
+  border-radius: 20px; padding: 3px 9px;
+  font-size: 10.5px; color: #B91C1C; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; transition: all 0.18s;
+  font-family: 'DM Sans', sans-serif;
+}
+.hint-chip:hover { background: var(--red); color: white; }
+
+/* Messages */
+.panel-msgs {
+  flex: 1; overflow-y: auto;
+  padding: 14px 12px 8px;
+  background: #F9F9F7;
+  display: flex; flex-direction: column; gap: 8px;
+  scroll-behavior: smooth;
+}
+.panel-msgs::-webkit-scrollbar { width: 3px; }
+.panel-msgs::-webkit-scrollbar-thumb { background: #DDD; border-radius: 2px; }
+
+.msg { display: flex; align-items: flex-end; gap: 6px; animation: fu 0.28s ease; max-width: 92%; }
+@keyframes fu { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.msg.bot  { align-self: flex-start; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.m-av {
+  width: 24px; height: 24px; background: var(--red);
+  border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; flex-shrink: 0; margin-bottom: 2px;
+}
+.bub {
+  padding: 9px 12px; border-radius: 14px;
+  font-size: 12.5px; line-height: 1.6; max-width: 100%;
+}
+.msg.bot  .bub { background: white; color: var(--dark); border-bottom-left-radius: 3px; border: 1px solid #E8E8E8; }
+.msg.user .bub { background: var(--red); color: white; border-bottom-right-radius: 3px; }
+.msg-t { font-size: 9px; color: #CCC; margin-top: 2px; padding: 0 2px; }
+.msg.user .msg-t { text-align: right; align-self: flex-end; }
+.ref-badge { display: inline-block; background: var(--red); color: white; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px; padding: 2px 9px; border-radius: 5px; margin-top: 3px; }
+
+/* Inline cards */
+.card-wrap { padding: 0 0 2px 30px; animation: fu 0.28s ease; }
+
+/* Order card */
+.order-card { background: white; border: 1.5px solid #E8E8E8; border-radius: 11px; overflow: hidden; font-size: 11.5px; }
+.oc-head { background: #FEF2F2; padding: 7px 11px; font-size: 10px; font-weight: 700; color: #B91C1C; text-transform: uppercase; letter-spacing: 0.4px; }
+.oc-body { padding: 8px 11px; }
+.oc-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 3.5px 0; border-bottom: 1px solid #F3F3F3; gap: 6px; font-size: 11.5px; }
+.oc-row:last-child { border-bottom: none; }
+.oc-row .l { color: var(--soft); flex-shrink: 0; } .oc-row .v { font-weight: 500; color: var(--dark); text-align: right; }
+.reason-box { margin-top: 6px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 7px 10px; }
+.reason-box .r-title { font-weight: 700; color: #B45309; font-size: 10px; margin-bottom: 3px; text-transform: uppercase; }
+.reason-box .r-text { color: #92400E; font-size: 11px; line-height: 1.55; }
+
+/* Status card */
+.sc { background: white; border: 1.5px solid #E8E8E8; border-radius: 11px; overflow: hidden; }
+.sc-h { background: #FEF2F2; padding: 6px 11px; font-size: 10px; font-weight: 600; color: #B91C1C; text-transform: uppercase; letter-spacing: 0.4px; }
+.sc-b { padding: 8px 11px; }
+.sc-r { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; padding: 3px 0; border-bottom: 1px solid #F3F3F3; }
+.sc-r:last-child { border-bottom: none; }
+.sc-r .l { color: var(--soft); } .sc-r .v { font-weight: 500; color: var(--dark); }
+.stag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 20px; font-size: 10.5px; font-weight: 600; }
+.stag.open      { background: #DBEAFE; color: #1E40AF; }
+.stag.pending   { background: #FEF3C7; color: #B45309; }
+.stag.escalated { background: #FEE2E2; color: #B91C1C; }
+.stag.resolved  { background: #D1FAE5; color: #065F46; }
+
+/* Inline form card */
+.form-card { background: white; border: 1.5px solid #E8E8E8; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,0.07); }
+.fc-head { background: var(--red); padding: 9px 13px; display: flex; align-items: center; gap: 7px; }
+.fc-head h4 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; color: white; flex: 1; }
+.fc-type { font-size: 10px; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 2px 8px; white-space: nowrap; }
+.fc-body { padding: 11px 13px 11px; }
+.fc-field { margin-bottom: 9px; }
+.fc-label { display: block; font-size: 9.5px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.fc-iw { display: flex; align-items: center; border: 1.5px solid #E8E8E8; border-radius: 8px; background: #FAFAFA; overflow: hidden; transition: border-color 0.2s; }
+.fc-iw:focus-within { border-color: var(--red); background: white; }
+.fc-iw.err { border-color: #F87171; background: #FFF5F5; }
+.fc-icon { width: 32px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 13px; border-right: 1px solid #E8E8E8; color: var(--soft); flex-shrink: 0; }
+.fc-input { flex: 1; border: none; background: transparent; outline: none; font-size: 12.5px; font-family: 'DM Sans', sans-serif; padding: 8px 9px; color: var(--dark); }
+.fc-input::placeholder { color: #C8C8C8; }
+.fc-err { font-size: 9.5px; color: #DC2626; margin-top: 2px; padding-left: 2px; display: none; }
+.fc-err.show { display: block; }
+.prefill-notice { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 5px 9px; font-size: 10.5px; color: #15803D; margin-bottom: 8px; }
+
+/* Image upload */
+.img-upload { border: 2px dashed #E8E8E8; border-radius: 9px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; background: #FAFAFA; position: relative; }
+.img-upload:hover { border-color: var(--red); background: var(--red-light); }
+.img-upload.has-files { border-color: var(--red); border-style: solid; background: var(--red-light); }
+.img-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.img-upload-icon { font-size: 18px; margin-bottom: 2px; }
+.img-upload-text { font-size: 10.5px; color: var(--soft); }
+.img-upload-text strong { color: var(--red); }
+.img-upload-hint { font-size: 9.5px; color: #BBB; margin-top: 1px; }
+.img-previews { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.img-prev-item { position: relative; width: 44px; height: 44px; border-radius: 6px; overflow: hidden; border: 1.5px solid #E8E8E8; flex-shrink: 0; }
+.img-prev-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-prev-remove { position: absolute; top: 1px; right: 1px; width: 14px; height: 14px; background: rgba(0,0,0,0.65); color: white; border: none; border-radius: 50%; font-size: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.fc-submit { width: 100%; background: var(--red); color: white; border: none; border-radius: 8px; padding: 9px; margin-top: 5px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.3px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.fc-submit:hover { background: var(--red-dark); transform: translateY(-1px); }
+.fc-submit:disabled { background: #CCC; cursor: not-allowed; transform: none; }
+
+/* Typing */
+.typing { display: flex; align-items: center; gap: 6px; padding: 0 0 2px 30px; animation: fu 0.28s ease; }
+.tdots { display: flex; gap: 3px; align-items: center; background: white; border: 1px solid #E8E8E8; border-radius: 11px; padding: 6px 10px; }
+.tdots span { width: 5px; height: 5px; background: #CCC; border-radius: 50%; animation: td 1.2s infinite; }
+.tdots span:nth-child(2){animation-delay:.2s} .tdots span:nth-child(3){animation-delay:.4s}
+@keyframes td { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+
+/* Input bar */
+.panel-input {
+  border-top: 1px solid #EBEBEB; padding: 10px 12px;
+  display: flex; align-items: flex-end; gap: 8px;
+  background: white; flex-shrink: 0;
+  border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+  min-height: 58px;
+}
+.panel-input textarea {
+  flex: 1; border: 1px solid #E8E8E8; border-radius: 14px;
+  background: #F8F8F8; color: var(--dark);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 9px 13px; outline: none; resize: none;
+  min-height: 40px; max-height: 40px; overflow-y: auto;
+  line-height: 1.45; transition: border-color 0.2s;
+}
+.panel-input textarea:focus { border-color: var(--red); background: white; }
+.panel-input textarea::placeholder { color: #C0C0C0; }
+.send-btn {
+  background: linear-gradient(135deg, var(--red) 0%, #FF4D5E 100%);
+  color: white; border: none; padding: 9px 16px;
+  border-radius: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 38px; transition: all 0.2s;
+  box-shadow: 0 3px 10px rgba(208,28,42,0.3);
+  align-self: stretch;
+}
+.send-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(208,28,42,0.4); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.send-btn svg { width: 16px; height: 16px; }
+
+@media(max-width:480px){
+  .chat-panel { position: fixed; inset: 0; width: 100%; height: 100%; border-radius: 0; bottom: auto; right: auto; }
+  .chat-widget { bottom: 16px; right: 16px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════
+     BACKGROUND PAGE
+═══════════════════════════════════════ -->
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-box">L●TS</div>
+    <div class="nav-logo-text">
+      <h1>LOTS Wholesale Solutions</h1>
+      <span>CP Wholesale India Pvt. Ltd.</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#">Home</a>
+    <a href="#">Products</a>
+    <a href="#">Stores</a>
+    <a href="#">Membership</a>
+    <a href="#">About</a>
+  </div>
+  <button class="nav-cta">Member Login</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🏪 India's Leading B2B Cash & Carry</div>
+  <h1>India's <em>Wholesale</em><br>Partner for Business</h1>
+  <p>Over 500 premium brands. 6 stores across Delhi NCR. Serving retailers, HoReCa & institutions since 2017.</p>
+  <div class="hero-btns">
+    <button class="btn-primary">Become a Member</button>
+    <button class="btn-outline">Explore Products</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">500+</div><div class="stat-lbl">Premium Brands</div></div>
+  <div class="stat-item"><div class="stat-num">6</div><div class="stat-lbl">Stores Delhi NCR</div></div>
+  <div class="stat-item"><div class="stat-num">₹9,000</div><div class="stat-lbl">Min. Order (App)</div></div>
+  <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-lbl">AI Support</div></div>
+</div>
+
+<!-- SERVICES -->
+<div class="section">
+  <h2 class="section-title">Everything Your <em>Business Needs</em></h2>
+  <p class="section-sub">From fresh produce to electronics — single-stop sourcing for professional business operators.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="sc-icon red">🥩</div>
+      <h3>Fresh & Chilled</h3>
+      <p>Fruits, vegetables, dairy, meat and fresh produce sourced daily for restaurants and retailers.</p>
+    </div>
+    <div class="service-card">
+      <div class="sc-icon dark">📦</div>
+      <h3>FMCG & Packaged</h3>
+      <p>500+ brands of packaged food, beverages, snacks and household products at wholesale prices.</p>
+    </div>
+    <div class="service-card">
+      <div class="sc-icon amber">🧹</div>
+      <h3>Non-Food & HPC</h3>
+      <p>Cleaning supplies, personal care, stationery and home products for service businesses.</p>
+    </div>
+    <div class="service-card">
+      <div class="sc-icon green">🚚</div>
+      <h3>B2B Delivery</h3>
+      <p>Doorstep delivery to your business address. No delivery charges, minimum ₹9,000 on app.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STORES -->
+<div class="stores-section">
+  <div style="max-width:1200px;margin:0 auto">
+    <h2 class="section-title">Our <em>Store Locations</em></h2>
+    <p class="section-sub">5 physical stores across Delhi NCR + Ghaziabad, plus digital ordering on lotswholesale.com</p>
+    <div class="stores-grid">
+      <div class="store-card">
+        <span class="store-code">101 · NSP</span>
+        <div class="store-name">Netaji Subhash Place</div>
+        <div class="store-addr">NSP Metro Station, New Delhi 110034</div>
+        <div class="store-time">🕘 9:00 AM – 8:00 PM</div>
+      </div>
+      <div class="store-card">
+        <span class="store-code">102 · ITH</span>
+        <div class="store-name">Ithum Noida</div>
+        <div class="store-addr">Plot A40, Sector-62, Ithum Tower, Noida</div>
+        <div class="store-time">🕖 7:00 AM – 9:00 PM</div>
+      </div>
+      <div class="store-card">
+        <span class="store-code">103 · AKD</span>
+        <div class="store-name">Akshardham</div>
+        <div class="store-addr">Parsvnath Mall, Akshardham Metro, Delhi</div>
+        <div class="store-time">🕘 9:00 AM – 8:00 PM</div>
+      </div>
+      <div class="store-card">
+        <span class="store-code">104 · SRV</span>
+        <div class="store-name">Sarita Vihar</div>
+        <div class="store-addr">Opp. Mohan Estate Metro, Sarita Vihar</div>
+        <div class="store-time">🕘 9:00 AM – 8:00 PM</div>
+      </div>
+      <div class="store-card">
+        <span class="store-code">105 · GZB</span>
+        <div class="store-name">Duhai Ghaziabad</div>
+        <div class="store-addr">NH-34, Meerut Road, Duhai, Ghaziabad</div>
+        <div class="store-time">🕖 7:00 AM – 9:00 PM</div>
+      </div>
+      <div class="store-card">
+        <span class="store-code">106 · GNI</span>
+        <div class="store-name">Greater Noida</div>
+        <div class="store-addr">Knowledge Park-1, Greater Noida 201308</div>
+        <div class="store-time">🕘 9:00 AM – 8:00 PM</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY LOTS -->
+<div class="section">
+  <div class="why-grid">
+    <div class="why-img">
+      <h3>Why 10,000+ Businesses Choose LOTS</h3>
+      <p>From small kiranas to large hotel chains — we're India's most trusted B2B wholesale partner, backed by Siam Makro's 30 years of Asia-wide expertise.</p>
+    </div>
+    <div class="why-list">
+      <div class="why-item"><div class="why-dot">🏷️</div><div><h4>Wholesale Pricing</h4><p>Best-in-market prices on 8,000+ SKUs. Bulk discounts negotiated directly with 500+ brands.</p></div></div>
+      <div class="why-item"><div class="why-dot">📱</div><div><h4>Digital Ordering</h4><p>Order online via app or website with doorstep delivery. No delivery charges on qualifying orders.</p></div></div>
+      <div class="why-item"><div class="why-dot">🔄</div><div><h4>Easy Returns</h4><p>7-day return policy with original invoice. No questions asked on quality issues.</p></div></div>
+      <div class="why-item"><div class="why-dot">🤖</div><div><h4>24/7 AI Support</h4><p>Our AI assistant understands Hindi, English and Hinglish — resolves complaints instantly.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBERSHIP CTA -->
+<div class="section" style="padding-top:0">
+  <div class="membership-cta">
+    <div>
+      <h2>Free Membership. Instant Access.</h2>
+      <p>Register your business today — bring your GST certificate, business license and ID. Start saving in minutes.</p>
+    </div>
+    <button class="btn-white">Register Free Today</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="nav-logo-box" style="width:36px;height:36px;font-size:13px">L●TS</div>
+        <div style="color:white;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px">LOTS Wholesale</div>
+      </div>
+      <p>India's leading B2B Cash & Carry wholesale chain. Subsidiary of Siam Makro, Asia's #1 wholesale operator.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About Us</a>
+      <a href="#">Careers</a>
+      <a href="#">Supplier Portal</a>
+      <a href="#">Press</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="#">Help Centre</a>
+      <a href="#">Returns Policy</a>
+      <a href="#">Delivery Info</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="#">📞 1860-123-5687</a>
+      <a href="#">📧 contactus@cpwi.in</a>
+      <a href="#">⏰ 9 AM – 9 PM, All Days</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2025 CP Wholesale India Pvt. Ltd. All rights reserved. | lotswholesale.com</div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════
+     FLOATING CHAT WIDGET
+═══════════════════════════════════════ -->
+<div class="chat-widget" id="chatWidget">
+
+  <!-- Launcher button -->
+  <button class="chat-launcher" id="chatLauncher">
+    <span class="launcher-icon">💬</span>
+    <span>Need Help?</span>
+    <div class="notif-badge" id="notifBadge"></div>
+  </button>
+
+  <!-- Chat panel -->
+  <div class="chat-panel" id="chatPanel">
+
+    <!-- Header -->
+    <div class="panel-head">
+      <div class="panel-head-top">
+        <div class="panel-head-left">
+          <div class="panel-av">🤖<div class="panel-av-dot"></div></div>
+          <div class="panel-head-info">
+            <h4>LOTS AI Support</h4>
+            <p>● Online · Powered by Claude AI</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="panel-restart" onclick="resetChat()" title="Restart">↺</button>
+          <button class="panel-close" id="chatClose">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promo ticker -->
+    <div class="panel-ticker" id="panelTicker">
+      <div class="ticker-dot"></div>
+      <div class="ticker-text" id="tickerText">Hindi, English, Hinglish — baat karo apni zubaan mein</div>
+    </div>
+
+  
+
+   <!-- Messages -->
+<div class="panel-msgs" id="msgs"></div>
+
+<!-- Input bar -->
+<div class="panel-input">
+  <textarea id="inp" placeholder="Type in Hindi, English, or Hinglish…" rows="1"
+    oninput="autoResize(this);toggleSend()"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(!isTyping)send()}"></textarea>
+  <button class="send-btn" id="sendBtn" disabled onclick="send()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
+    </svg>
+  </button>
+</div>
+
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+/* ── SAMPLE DATA ── */
+const ORDERS = {
+  '1540001':{orderId:'1540001',customer:'Ramesh Gupta',mobile:'9810112233',email:'rameshgupta@gmail.com',memberId:'5687000000134521',store:'101 – NSP Delhi',orderDate:'03 Jan 2026',expectedDel:'06 Jan 2026',actualStatus:'Delivered',items:[{name:'Fortune Sunlite Refined Oil 5L',qty:6,amount:'₹3,402'},{name:'Aashirvaad Whole Wheat Atta 10KG',qty:4,amount:'₹1,540'},{name:'Tata Salt Iodised 1KG',qty:24,amount:'₹504'}],totalAmount:'₹6,092.80',delayReason:null,delayDetail:null,estimatedDelivery:'Delivered',currentLocation:'Delivered',complaintRef:null},
+  '1540002':{orderId:'1540002',customer:'Sunita Agarwal',mobile:'9899334455',email:'sunita.wholesale@gmail.com',memberId:'5687000000198432',store:'102 – Ithum Noida',orderDate:'05 Jan 2026',expectedDel:'08 Jan 2026',actualStatus:'Delayed',items:[{name:'Surf Excel Matic Top Load 3KG',qty:6,amount:'₹2,388'},{name:'Vim Dishwash Liquid 2L',qty:8,amount:'₹1,112'},{name:'Harpic Power Plus Original 1L',qty:12,amount:'₹1,416'},{name:'Colgate Maxfresh Blue 300G',qty:4,amount:'₹712 (OOS)'}],totalAmount:'₹7,560',delayReason:'High demand / festive surge',delayDetail:'Your order is delayed due to exceptionally high demand during the festive season. Our fleet is at full capacity. Order is being dispatched from Ithum Noida hub. We sincerely apologise for the inconvenience.',estimatedDelivery:'Within 48 hours',currentLocation:'Ithum Noida Dispatch Hub',complaintRef:'LOTS20250105'},
+  '1540003':{orderId:'1540003',customer:'Vikram Patel',mobile:'9810556677',email:'vikrampatel@yahoo.com',memberId:'5687000000245678',store:'103 – Akshardham Delhi',orderDate:'08 Jan 2026',expectedDel:'11 Jan 2026',actualStatus:'Delivered',items:[{name:'Maggi Noodles Masala 70G',qty:48,amount:'₹648'},{name:'Parle G Original Biscuits 800G',qty:12,amount:'₹1,008'},{name:'Real Fruit Juice Mixed Fruit 1L',qty:24,amount:'₹2,136'},{name:'Britannia Bourbon Biscuits 150G',qty:36,amount:'₹684'}],totalAmount:'₹9,721.50',delayReason:null,delayDetail:null,estimatedDelivery:'Delivered',currentLocation:'Delivered',complaintRef:null},
+  '1540004':{orderId:'1540004',customer:'Nando Sharma',mobile:'8447713009',email:'nando.sharma@gmail.com',memberId:'5687000000356789',store:'104 – Sarita Vihar',orderDate:'10 Jan 2026',expectedDel:'12 Jan 2026',actualStatus:'Shipped',items:[{name:'Coca Cola Can 300ML',qty:36,amount:'₹1,152'},{name:'Lays American Cream Onion 73G',qty:35,amount:'₹819'},{name:'Kurkure Puffcorn Yummy Cheese 55G',qty:60,amount:'₹1,008'},{name:'Monster Energy Drink 250ML',qty:12,amount:'₹1,095.72'}],totalAmount:'₹14,524.86',delayReason:null,delayDetail:null,estimatedDelivery:'In transit',currentLocation:'In transit',complaintRef:null},
+  '1540005':{orderId:'1540005',customer:'Priya Mehta',mobile:'9654778899',email:'priyamehta.shop@gmail.com',memberId:'5687000000412345',store:'101 – NSP Delhi',orderDate:'12 Jan 2026',expectedDel:'15 Jan 2026',actualStatus:'Delivered',items:[{name:'Amul Butter Pasteurised 500G',qty:6,amount:'₹1,488'},{name:'Mother Dairy Full Cream Milk 1L',qty:24,amount:'₹1,296'},{name:'Dettol Soap Original 125G Pack of 4',qty:6,amount:'₹1,032'}],totalAmount:'₹6,664',delayReason:null,delayDetail:null,estimatedDelivery:'Delivered',currentLocation:'Delivered',complaintRef:null},
+  '1540006':{orderId:'1540006',customer:'Ajay Kumar Singh',mobile:'9711990011',email:'ajaysingh@gmail.com',memberId:'5687000000523456',store:'103 – Akshardham Delhi',orderDate:'15 Jan 2026',expectedDel:'17 Jan 2026',actualStatus:'Delayed',items:[{name:'Haldirams Aloo Bhujia 400G',qty:12,amount:'₹1,776'},{name:'Bisleri Water 1L',qty:48,amount:'₹672'},{name:'Lizol Disinfectant Surface Cleaner 2L',qty:6,amount:'₹1,788 (OOS)'}],totalAmount:'₹9,345',delayReason:'Vehicle breakdown',delayDetail:'Your delivery vehicle had a breakdown en route to Noida Sector 18. A replacement vehicle has been dispatched from Akshardham hub. We expect delivery within 24 hours. ₹100 goodwill credit has been added to your account.',estimatedDelivery:'Within 24 hours',currentLocation:'En route – replacement vehicle dispatched',complaintRef:null},
+  '1540007':{orderId:'1540007',customer:'Deepak Verma',mobile:'9810223344',email:'deepakverma@gmail.com',memberId:'5687000000634567',store:'105 – Ghaziabad',orderDate:'18 Jan 2026',expectedDel:'20 Jan 2026',actualStatus:'Out for Delivery',items:[{name:'Pepsi Can 300ML',qty:36,amount:'₹1,152'},{name:'Fortune Basmati Rice Rozana 5KG',qty:8,amount:'₹2,496'},{name:'Daawat Traditional Basmati Rice 5KG',qty:6,amount:'₹2,388'}],totalAmount:'₹12,124',delayReason:null,delayDetail:null,estimatedDelivery:'Today',currentLocation:'Out for delivery – Gurgaon',complaintRef:null},
+  '1540008':{orderId:'1540008',customer:'Neha Joshi',mobile:'9899445566',email:'neha.joshi@yahoo.com',memberId:'5687000000745678',store:'106 – Greater Noida',orderDate:'20 Jan 2026',expectedDel:'22 Jan 2026',actualStatus:'Processing',items:[{name:'Colgate Strong Teeth 200G Pack of 3',qty:8,amount:'₹1,056'},{name:'Dove Soap Bar 100G Pack of 4',qty:6,amount:'₹1,188'}],totalAmount:'₹5,040',delayReason:null,delayDetail:null,estimatedDelivery:'Within 2–3 days',currentLocation:'Processing at store',complaintRef:null},
+  '1540009':{orderId:'1540009',customer:'Suresh Khanna',mobile:'9810667788',email:'sureshkhanna@gmail.com',memberId:'5687000000856789',store:'102 – Ithum Noida',orderDate:'22 Jan 2026',expectedDel:'25 Jan 2026',actualStatus:'Delivered',items:[{name:'Tata Tea Premium 500G',qty:12,amount:'₹2,616'},{name:'Nestle Munch 13G Pack of 40',qty:6,amount:'₹2,490'},{name:'Wheel Lemon Jasmine Detergent 1KG',qty:24,amount:'₹1,320'}],totalAmount:'₹13,409',delayReason:null,delayDetail:null,estimatedDelivery:'Delivered',currentLocation:'Delivered',complaintRef:'LOTS20250108'},
+  '1540010':{orderId:'1540010',customer:'Anita Rawat',mobile:'9654889900',email:'anita.rawat@gmail.com',memberId:'5687000000967890',store:'101 – NSP Delhi',orderDate:'25 Jan 2026',expectedDel:'28 Jan 2026',actualStatus:'Delayed',items:[{name:'Aashirvaad Multigrain Atta 5KG',qty:6,amount:'₹1,608'},{name:'MDH Chunky Chaat Masala 500G',qty:5,amount:'₹990 (OOS)'},{name:'Everest Garam Masala 100G',qty:0,amount:'₹0 (OOS)'}],totalAmount:'₹5,355',delayReason:'OOS item – partial fulfillment',delayDetail:'Some items in your order (MDH Chunky Chaat Masala, Everest Garam Masala) are currently out of stock. Your order has been partially fulfilled with available items. Remaining items will be dispatched as soon as stock is replenished.',estimatedDelivery:'Partial delivery dispatched; remaining 5–7 days',currentLocation:'Partial fulfillment – awaiting restock',complaintRef:null},
+  '1540011':{orderId:'1540011',customer:'Mohit Srivastava',mobile:'9711001122',email:'mohitsriv@gmail.com',memberId:'5687000001078901',store:'104 – Sarita Vihar',orderDate:'28 Jan 2026',expectedDel:'30 Jan 2026',actualStatus:'Cancelled',items:[{name:'Parle Krackjack Sweet Salty 56.7G',qty:48,amount:'₹355.20'},{name:'Hide Seek Chocolate Biscuits 120G',qty:24,amount:'₹1,008'}],totalAmount:'₹3,780',delayReason:null,delayDetail:null,estimatedDelivery:'Cancelled',currentLocation:'Cancelled',complaintRef:null},
+  '1540012':{orderId:'1540012',customer:'Rajinder Kaur',mobile:'9810334455',email:'rajinderkaur@yahoo.com',memberId:'5687000001189012',store:'106 – Greater Noida',orderDate:'01 Feb 2026',expectedDel:'03 Feb 2026',actualStatus:'Shipped',items:[{name:'Vicco Vajradanti Sauf Toothpaste 200G',qty:36,amount:'₹2,417.76'},{name:'Godrej Expert Hair Colour Natural Black 12G',qty:60,amount:'₹702'},{name:'Rin Advance Detergent Powder 1KG',qty:24,amount:'₹1,992'}],totalAmount:'₹18,739',delayReason:null,delayDetail:null,estimatedDelivery:'Within 2 days',currentLocation:'In transit',complaintRef:null}
+};
+
+function findOrder(q){
+  const c=q.trim().toUpperCase().replace(/\s/g,'');
+  if(ORDERS[c]) return ORDERS[c];
+  for(const o of Object.values(ORDERS)) if(o.mobile===q.trim()||o.memberId.toUpperCase()===c) return o;
+  return null;
+}
+
+/* ── PRODUCTS CATALOG ── */
+const PRODUCTS = [
+  {id:'103000001',name:'Fortune Sunlite Refined Oil',unit:'5L',category:'Staples',price:567,mrp:745,discount:23},
+  {id:'103000004',name:'Surf Excel Matic Top Load',unit:'3KG',category:'Household',price:398,mrp:550,discount:27},
+  {id:'103000008',name:'Maggi Noodles Masala',unit:'70G',category:'Snacks',price:13.50,mrp:18,discount:25},
+  {id:'103000009',name:'Parle G Original Biscuits',unit:'800G',category:'Snacks',price:84,mrp:110,discount:23},
+  {id:'103000012',name:'Coca Cola Can',unit:'300ML',category:'Beverages',price:32,mrp:40,discount:20},
+  {id:'103000013',name:'Lays American Cream Onion',unit:'73G',category:'Snacks',price:23.40,mrp:30,discount:22},
+  {id:'103000017',name:'Amul Butter Pasteurised',unit:'500G',category:'Dairy',price:248,mrp:330,discount:24},
+  {id:'103000018',name:'Mother Dairy Full Cream Milk',unit:'1L',category:'Dairy',price:54,mrp:68,discount:20},
+  {id:'103000019',name:'Dettol Soap Original',unit:'125G Pack of 4',category:'Personal Care',price:172,mrp:230,discount:25},
+  {id:'103000022',name:'Lizol Disinfectant Surface Cleaner',unit:'2L',category:'Household',price:298,mrp:420,discount:29},
+  {id:'103000023',name:'Pepsi Can',unit:'300ML',category:'Beverages',price:32,mrp:40,discount:20},
+  {id:'103000024',name:'Fortune Basmati Rice Rozana',unit:'5KG',category:'Staples',price:312,mrp:420,discount:25},
+  {id:'103000027',name:'Dove Soap Bar',unit:'100G Pack of 4',category:'Personal Care',price:198,mrp:268,discount:26},
+  {id:'103000028',name:'Tata Tea Premium',unit:'500G',category:'Beverages',price:218,mrp:290,discount:24},
+  {id:'103000031',name:'Aashirvaad Multigrain Atta',unit:'5KG',category:'Staples',price:268,mrp:360,discount:25},
+  {id:'103000036',name:'Vicco Vajradanti Toothpaste',unit:'200G',category:'Personal Care',price:67.16,mrp:146,discount:32},
+  {id:'103000038',name:'Rin Advance Detergent Powder',unit:'1KG',category:'Household',price:83,mrp:100,discount:17},
+  {id:'103000039',name:'Haldirams Aloo Bhujia',unit:'400G',category:'Snacks',price:148,mrp:200,discount:26},
+  {id:'103000040',name:'Bisleri Water',unit:'1L',category:'Beverages',price:14,mrp:20,discount:30},
+  {id:'103000041',name:'Colgate Strong Teeth Toothpaste',unit:'200G',category:'Personal Care',price:88,mrp:120,discount:27}
+];
+
+/* ── STATE ── */
+let isTyping=false, awaitingForm=false, complaintType='', currentOrder=null, uploadedFiles=[];
+let cartItems=[];
+const hist=[];
+const sessionId='sess_'+Math.random().toString(36).slice(2,11);
+
+/* ── SYSTEM PROMPT ── */
+const SYS=`You are an AI support agent for LOTS Wholesale Solutions — India's B2B Cash & Carry chain. Respond naturally in Hindi, English, or Hinglish — match the user's language exactly.
+
+TASKS:
+1. ORDER DELAYED — user says order nahi aaya / late / delayed → empathise, then output {"action":"LOOKUP_ORDER","intent":"delayed"}
+2. DAMAGE/BROKEN — user says saman damage/broken/toota/kharab → empathise, then output {"action":"LOOKUP_ORDER","intent":"damaged"}
+3. STATUS CHECK — user asks complaint status / reference number → output {"action":"SHOW_STATUS_FORM"}
+4. ORDER CONTEXT — when system sends order details, present warmly. For delays explain reason clearly. For damage express sympathy.
+5. GENERAL — answer questions about stores, timings, membership, returns, products.
+
+RULES: 2-4 sentences max. Warm and empathetic tone. Output JSON action on its own line at end when needed. Never invent order data.`;
+
+/* ── DOM HELPERS ── */
+const el=id=>document.getElementById(id);
+const nowt=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const scrollDown=()=>{const m=el('msgs');setTimeout(()=>m.scrollTop=m.scrollHeight,80);};
+
+function addMsg(who,html){
+  const c=el('msgs'),d=document.createElement('div');
+  d.className=`msg ${who}`;
+  d.innerHTML = who==='bot'
+    ? `<div class="m-av">🤖</div><div><div class="bub">${html}</div><div class="msg-t">${nowt()}</div></div>`
+    : `<div><div class="bub">${html}</div><div class="msg-t">${nowt()}</div></div>`;
+  c.appendChild(d); scrollDown();
+}
+function addCard(html){
+  const c=el('msgs'),d=document.createElement('div');
+  d.className='card-wrap'; d.innerHTML=html; c.appendChild(d); scrollDown();
+}
+function showTyp(){const c=el('msgs'),t=document.createElement('div');t.className='typing';t.id='typ';t.innerHTML='<div class="tdots"><span></span><span></span><span></span></div>';c.appendChild(t);scrollDown();}
+function hideTyp(){const t=el('typ');if(t)t.remove();}
+function setInput(on){const i=el('inp'),b=el('sendBtn');i.disabled=!on;if(on&&i.value.trim())b.disabled=false;else if(!on)b.disabled=true;if(on)i.focus();}
+function autoResize(t){t.style.height='18px';t.style.height=Math.min(t.scrollHeight,80)+'px';}
+function toggleSend(){el('sendBtn').disabled=!el('inp').value.trim();}
+function useHint(c){
+  const s=el('chatSuggestions');if(s)s.remove();
+  const i=el('inp');i.value=typeof c==='string'?c:c.textContent.trim();
+  toggleSend();send();
+}
+function showSuggestions(){
+  const chips=[
+    {text:'🕐 Order Nahi Mila / Delayed Delivery',fn:'startDelayFlow()'},
+    {text:'📦 Packaging Tooti / Damage Issue',fn:'startDamageFlow()'},
+    {text:'🛒 Saman Order Karna Hai / Place a New Order',fn:'startOrderFlow()'}
+  ];
+  const div=document.createElement('div');
+  div.className='chat-suggestions';div.id='chatSuggestions';
+  div.innerHTML=`<div class="suggestion-label">Try asking:</div><div class="suggestion-chips-row">${chips.map(c=>`<button class="suggestion-chip" onclick="${c.fn}">${c.text}<span class="chip-arrow">→</span></button>`).join('')}</div>`;
+  el('msgs').appendChild(div);
+  scrollDown();
+}
+
+/* ── ORDER CARD ── */
+function renderOrderCard(o,intent){
+  const sc=o.actualStatus.includes('Delay')?'#B45309':o.actualStatus.includes('Damage')?'#B91C1C':'#065F46';
+  const items=o.items.map(i=>`<div class="oc-row"><span class="l">${i.name} ×${i.qty}</span><span class="v">${i.amount}</span></div>`).join('');
+  let extra='';
+  if(intent==='delayed'&&o.delayDetail) extra=`<div class="reason-box"><div class="r-title">⚠️ Delay Reason</div><div class="r-text">${o.delayDetail}</div></div><div class="oc-row" style="margin-top:6px"><span class="l">📍 Location</span><span class="v">${o.currentLocation}</span></div><div class="oc-row"><span class="l">🕐 New ETA</span><span class="v" style="color:var(--red);font-weight:700">${o.estimatedDelivery}</span></div>`;
+  return `<div class="order-card"><div class="oc-head">📦 Order – ${o.orderId}</div><div class="oc-body"><div class="oc-row"><span class="l">👤 Customer</span><span class="v">${o.customer}</span></div><div class="oc-row"><span class="l">🏪 Store</span><span class="v">${o.store}</span></div><div class="oc-row"><span class="l">📅 Order Date</span><span class="v">${o.orderDate}</span></div><div class="oc-row"><span class="l">🚚 Expected</span><span class="v">${o.expectedDel}</span></div><div class="oc-row"><span class="l">📊 Status</span><span class="v" style="color:${sc};font-weight:700">${o.actualStatus}</span></div><div style="height:4px"></div>${items}<div class="oc-row" style="margin-top:2px"><span class="l" style="font-weight:700">Total</span><span class="v" style="font-weight:700;color:var(--red)">${o.totalAmount}</span></div>${extra}</div></div>`;
+}
+
+/* ── COMPLAINT FORM ── */
+function showComplaintForm(order,intent){
+  awaitingForm=true; complaintType=intent; currentOrder=order; uploadedFiles=[];
+  const lbl=intent==='delayed'?'🕐 Order Delayed':'📦 Damage / Broken';
+  const pre=order?`<div class="prefill-notice">✅ Details auto-filled from your order</div>`:'';
+  const mv=order?order.memberId:'', mob=order?order.mobile:'', ov=order?order.orderId:'';
+  const imgField=intent==='damaged'?`<div class="fc-field"><label class="fc-label">📸 Damage Photos *</label><div class="img-upload" id="imgUp" onclick="trigUp()"><input type="file" id="imgIn" accept="image/*" multiple onchange="handleImgs(event)"/><div class="img-upload-icon">📷</div><div class="img-upload-text"><strong>Tap to upload</strong> photos</div><div class="img-upload-hint">JPG/PNG · max 5 photos</div></div><div class="img-previews" id="imgPrev"></div><div class="fc-err" id="e_img">Please attach at least 1 photo</div></div>`:'';
+  const c=el('msgs'),f=document.createElement('div');
+  f.className='card-wrap'; f.id='frmWrap';
+  f.innerHTML=`<div class="form-card"><div class="fc-head"><h4>📋 Complaint Form</h4><span class="fc-type">${lbl}</span></div><div class="fc-body">${pre}<div class="fc-field"><label class="fc-label">Membership / Customer ID *</label><div class="fc-iw" id="w_mid"><div class="fc-icon">🪪</div><input class="fc-input" id="f_mid" value="${mv}" placeholder="e.g. 5687000000134521" oninput="clrE('mid')"/></div><div class="fc-err" id="e_mid">Enter your Membership ID</div></div><div class="fc-field"><label class="fc-label">Mobile Number *</label><div class="fc-iw" id="w_mob"><div class="fc-icon">📱</div><input class="fc-input" id="f_mob" value="${mob}" placeholder="e.g. 9810112233" maxlength="10" inputmode="numeric" oninput="clrE('mob')"/></div><div class="fc-err" id="e_mob">Enter a valid 10-digit number</div></div><div class="fc-field"><label class="fc-label">Order ID *</label><div class="fc-iw" id="w_oid"><div class="fc-icon">🧾</div><input class="fc-input" id="f_oid" value="${ov}" placeholder="e.g. 1540001" oninput="clrE('oid')"/></div><div class="fc-err" id="e_oid">Enter your Order ID</div></div>${imgField}<button class="fc-submit" id="frmBtn" onclick="submitForm()">📨 Submit Complaint</button></div></div>`;
+  c.appendChild(f); scrollDown(); setInput(false);
+}
+function clrE(f){el(`w_${f}`)?.classList.remove('err');const e=el(`e_${f}`);if(e)e.classList.remove('show');}
+function shwE(f){el(`w_${f}`)?.classList.add('err');const e=el(`e_${f}`);if(e)e.classList.add('show');}
+function trigUp(){el('imgIn')?.click();}
+function handleImgs(e){
+  const files=Array.from(e.target.files).slice(0,5); uploadedFiles=files;
+  const prev=el('imgPrev'),up=el('imgUp'); if(!prev||!up)return;
+  prev.innerHTML='';
+  files.forEach((f,i)=>{const r=new FileReader();r.onload=ev=>{const d=document.createElement('div');d.className='img-prev-item';d.innerHTML=`<img src="${ev.target.result}"/><button class="img-prev-remove" onclick="rmImg(${i})">✕</button>`;prev.appendChild(d);};r.readAsDataURL(f);});
+  up.classList.add('has-files'); clrE('img');
+}
+function rmImg(i){uploadedFiles.splice(i,1);const up=el('imgUp');if(uploadedFiles.length===0){el('imgPrev').innerHTML='';up?.classList.remove('has-files');}else{handleImgs({target:{files:uploadedFiles}});}}
+
+async function submitForm(){
+  const mid=el('f_mid')?.value.trim(), mob=el('f_mob')?.value.trim(), oid=el('f_oid')?.value.trim();
+  let ok=true;
+  if(!mid){shwE('mid');ok=false;} if(!mob||mob.length<10){shwE('mob');ok=false;} if(!oid){shwE('oid');ok=false;}
+  if(complaintType==='damaged'&&uploadedFiles.length===0){shwE('img');ok=false;}
+  if(!ok){scrollDown();return;}
+  const btn=el('frmBtn');if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+  const ref='LOTS'+Date.now().toString().slice(-8);
+  if(currentOrder)currentOrder.complaintRef=ref;
+  const pc=uploadedFiles.length;
+  el('frmWrap')?.remove(); awaitingForm=false; setInput(true);
+  const tl=complaintType==='delayed'?'Order Delayed':'Damage/Broken';
+  const sysMsg=`[SYSTEM: Complaint submitted — Type:${tl}, MemberID:${mid}, Mobile:${mob}, OrderID:${oid}${complaintType==='damaged'?`, Photos:${pc}`:''}, Ref:${ref}]\nConfirm warmly. Show ref as <span class="ref-badge">${ref}</span>. Team contacts in 24hrs on ${mob}.${complaintType==='damaged'?` Confirm ${pc} photo(s) received.`:''} Match user's language.`;
+  hist.push({role:'user',content:`[Form submitted: ${tl}, Ref:${ref}]`});
+  showTyp(); isTyping=true;
+  try{const r=await claude(sysMsg);hideTyp();hist.push({role:'assistant',content:r});addMsg('bot',r.replace(/\n/g,'<br>'));}
+  catch{hideTyp();addMsg('bot',`✅ Registered!<br><br>Ref: <span class="ref-badge">${ref}</span><br>We'll contact you on <strong>${mob}</strong> in 24 hours.${complaintType==='damaged'?`<br>📸 ${pc} photo(s) received.`:''}`);}
+  isTyping=false;
+}
+
+/* ── GO BACK ── */
+function goBack(){
+  ['dcFrmWrap','orderChoicesWrap','psWrap','roWrap','repeatCardWrap'].forEach(id=>el(id)?.remove());
+  awaitingForm=false; uploadedFiles=[]; cartItems=[];
+  window._repeatItems=null; window._repeatOrderId=null;
+  addMsg('bot','Main menu par wapas aa gaye! 👋');
+  showSuggestions();
+  setInput(true);
+}
+
+/* ── FLOW 1: DELAYED ORDER ── */
+function startDelayFlow(){
+  el('chatSuggestions')?.remove();
+  addMsg('bot','Samajh sakta hoon — delayed order bohot frustrating hota hai! 🕐<br>Neeche form bharo, hum aapka order track karenge aur complaint register karenge.');
+  showDirectComplaintForm('delayed');
+}
+
+/* ── FLOW 2: DAMAGE ISSUE ── */
+function startDamageFlow(){
+  el('chatSuggestions')?.remove();
+  addMsg('bot','Bahut sorry! Damaged/broken saman — yeh bilkul acceptable nahi hai. 😔<br>Neeche form mein photos upload karein, hum 24 ghante mein resolve karenge.');
+  showDirectComplaintForm('damaged');
+}
+
+/* ── DIRECT COMPLAINT FORM (Delay + Damage) ── */
+function showDirectComplaintForm(type, prefilledOrder){
+  awaitingForm=true; complaintType=type; uploadedFiles=[];
+  window._dcOrder = prefilledOrder || null;
+  const lbl=type==='delayed'?'🕐 Delivery Delayed':'📦 Damage / Broken';
+  const sampleChips = type==='delayed'
+    ? `<span class="dc-sample-chip" onclick="dcFill('1540002')">1540002</span><span class="dc-sample-chip" onclick="dcFill('1540006')">1540006</span><span class="dc-sample-chip" onclick="dcFill('1540010')">1540010</span>`
+    : `<span class="dc-sample-chip" onclick="dcFill('1540003')">1540003</span><span class="dc-sample-chip" onclick="dcFill('1540004')">1540004</span><span class="dc-sample-chip" onclick="dcFill('1540009')">1540009</span>`;
+  const imgField=type==='damaged'?`
+    <div class="fc-field">
+      <label class="fc-label">📸 Damage Photos * (max 4)</label>
+      <div class="img-upload" id="imgUp2" onclick="el('imgIn2').click()">
+        <input type="file" id="imgIn2" accept="image/*" multiple onchange="handleImgs2(event)"/>
+        <div class="img-upload-icon">📷</div>
+        <div class="img-upload-text"><strong>Tap to upload</strong> damage photos</div>
+        <div class="img-upload-hint">JPG/PNG · max 4 photos</div>
+      </div>
+      <div class="img-previews" id="imgPrev2"></div>
+      <div class="fc-err" id="e_img2">Please attach at least 1 photo</div>
+    </div>`:'';
+  const c=el('msgs'),f=document.createElement('div');
+  f.className='card-wrap'; f.id='dcFrmWrap';
+  const lookupDisplay = prefilledOrder ? 'none' : 'block';
+  const detailsDisplay = prefilledOrder ? 'block' : 'none';
+  const prefilledCardHtml = prefilledOrder ? buildCustomerCard(prefilledOrder) : '';
+  f.innerHTML=`<div class="form-card">
+    <div class="fc-head"><h4>📋 Complaint Form</h4><span class="fc-type">${lbl}</span></div>
+    <div class="fc-body">
+      <button class="btn-back" onclick="goBack()">← Back to main menu</button>
+      <div id="dcLookupStep" style="display:${lookupDisplay}">
+        <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:10.5px;color:#92400E;line-height:1.9">
+          <strong>🧪 Sample Order IDs — click to fill:</strong><br>${sampleChips}
+        </div>
+        <div class="fc-field">
+          <label class="fc-label">Order ID *</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="fc-iw" style="flex:1" id="w_dc_oid">
+              <div class="fc-icon">🧾</div>
+              <input class="fc-input" id="f_dc_oid" placeholder="Enter Order ID…" oninput="clrE('dc_oid')" onkeydown="if(event.key==='Enter')dcLookup()"/>
+            </div>
+            <button onclick="dcLookup()" style="background:var(--red);color:white;border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">🔍 Find</button>
+          </div>
+          <div class="fc-err" id="e_dc_oid">Order not found. Please check the ID.</div>
+        </div>
+      </div>
+      <div id="dcCustomerCard" style="display:${prefilledOrder?'block':'none'}">${prefilledCardHtml}</div>
+      <div id="dcFormFields" style="display:${detailsDisplay}">
+        ${imgField}
+        <div class="fc-field">
+          <label class="fc-label">Remarks (Optional)</label>
+          <textarea id="f_dc_rmk" placeholder="Describe the issue briefly…" style="width:100%;border:1.5px solid #E8E8E8;border-radius:8px;background:#FAFAFA;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--dark);outline:none;resize:none;min-height:56px;line-height:1.45;" onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='#E8E8E8'"></textarea>
+        </div>
+        <button class="fc-submit" id="dcFrmBtn" onclick="submitDirectForm()">📨 Submit Complaint</button>
+      </div>
+    </div>
+  </div>`;
+  c.appendChild(f); scrollDown(); setInput(false);
+}
+
+function dcFill(id){
+  const inp=el('f_dc_oid');
+  if(inp){inp.value=id;clrE('dc_oid');dcLookup();}
+}
+function dcLookup(){
+  const v=el('f_dc_oid')?.value.trim();
+  if(!v){shwE('dc_oid');return;}
+  const o=findOrder(v);
+  if(!o){
+    const errEl=el('e_dc_oid');
+    if(errEl)errEl.textContent='Order not found. Try: 1540002, 1540006, or 1540010.';
+    shwE('dc_oid');return;
+  }
+  window._dcOrder=o;
+  el('dcCustomerCard').innerHTML=buildCustomerCard(o);
+  el('dcCustomerCard').style.display='block';
+  el('dcLookupStep').style.display='none';
+  el('dcFormFields').style.display='block';
+  scrollDown();
+}
+function dcReset(){
+  window._dcOrder=null;
+  el('dcCustomerCard').innerHTML='';
+  el('dcCustomerCard').style.display='none';
+  el('dcFormFields').style.display='none';
+  el('dcLookupStep').style.display='block';
+  setTimeout(()=>el('f_dc_oid')?.focus(),50);
+}
+function buildCustomerCard(o){
+  const storeName=o.store.includes('–')?o.store.split('–')[1].trim():o.store;
+  return `<div class="customer-found-card">
+    <div class="customer-found-head">
+      <span style="font-size:11px;font-weight:700;color:#15803D">✅ Customer Found</span>
+      <button onclick="dcReset()" style="font-size:10px;color:#888;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">✎ Change</button>
+    </div>
+    <div class="customer-found-grid">
+      <div class="customer-found-field"><div class="customer-found-label">Name</div><div class="customer-found-value">${o.customer}</div></div>
+      <div class="customer-found-field"><div class="customer-found-label">Mobile</div><div class="customer-found-value">${o.mobile}</div></div>
+      <div class="customer-found-field"><div class="customer-found-label">Email</div><div class="customer-found-value">${o.email}</div></div>
+      <div class="customer-found-field"><div class="customer-found-label">Store</div><div class="customer-found-value">${storeName}</div></div>
+      <div class="customer-found-field"><div class="customer-found-label">Order</div><div class="customer-found-value">${o.orderId} · ${o.orderDate}</div></div>
+      <div class="customer-found-field"><div class="customer-found-label">Membership ID</div><div class="customer-found-value" style="font-size:9.5px">${o.memberId}</div></div>
+    </div>
+  </div>`;
+}
+
+function handleImgs2(e){
+  const files=Array.from(e.target.files).slice(0,4); uploadedFiles=files;
+  const prev=el('imgPrev2'),up=el('imgUp2'); if(!prev||!up)return;
+  prev.innerHTML='';
+  files.forEach((f,i)=>{const r=new FileReader();r.onload=ev=>{const d=document.createElement('div');d.className='img-prev-item';d.innerHTML=`<img src="${ev.target.result}"/><button class="img-prev-remove" onclick="rmImg2(${i})">✕</button>`;prev.appendChild(d);};r.readAsDataURL(f);});
+  up.classList.add('has-files'); clrE('img2');
+}
+function rmImg2(i){
+  uploadedFiles.splice(i,1);
+  if(uploadedFiles.length===0){el('imgPrev2').innerHTML='';el('imgUp2')?.classList.remove('has-files');}
+  else{handleImgs2({target:{files:uploadedFiles}});}
+}
+
+function submitDirectForm(){
+  const o=window._dcOrder;
+  if(!o){shwE('dc_oid');return;}
+  if(complaintType==='damaged'&&uploadedFiles.length===0){shwE('img2');scrollDown();return;}
+  const btn=el('dcFrmBtn');if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+  const ref='LOTS'+Date.now().toString().slice(-8);
+  const pc=uploadedFiles.length;
+  const rmk=el('f_dc_rmk')?.value.trim()||'';
+  const storeId=o.store.includes('–')?o.store.split('–')[0].trim():o.store;
+  const storeName=o.store.includes('–')?o.store.split('–')[1].trim():o.store;
+  const tl=complaintType==='delayed'?'Order Delayed':'Damage / Broken';
+  el('dcFrmWrap')?.remove(); awaitingForm=false;
+  addMsg('bot',`✅ <strong>Complaint Registered!</strong><br><br>📋 Type: ${tl}<br>📦 Order: <strong>${o.orderId}</strong><br>👤 ${o.customer}<br>📱 ${o.mobile} · 📧 ${o.email}<br>🏪 ${storeName}<br>🔖 Reference: <span class="ref-badge">${ref}</span>${complaintType==='damaged'&&pc?`<br>📸 ${pc} photo(s) received`:''}${rmk?`<br>💬 Remarks noted`:''}<br><br>Team member aapko <strong>${o.mobile}</strong> par 24 ghante mein contact karenge. 🙏`);
+  uploadedFiles=[]; setInput(true);
+  fetch('https://automation.openmindhelpline.com/webhook/lots-complaint',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({complaint_ref:ref,order_id:o.orderId,customer_id:o.memberId,name:o.customer,phone:o.mobile,email:o.email,store_id:storeId,store_name:storeName,complaint_type:complaintType,remarks:rmk,photos_count:pc,sessionId:sessionId})
+  }).catch(()=>{});
+}
+
+/* ── FLOW 3: PLACE NEW ORDER ── */
+function startOrderFlow(){
+  el('chatSuggestions')?.remove();
+  addMsg('bot','Zaroor! 🛒 Aap kaise order karna chahte hain?');
+  showOrderChoices();
+}
+
+function showOrderChoices(){
+  const c=el('msgs'),d=document.createElement('div');
+  d.className='card-wrap'; d.id='orderChoicesWrap';
+  d.innerHTML=`<div class="order-opts-card">
+    <div class="order-opts-head"><h4>🛒 Order Kaise Karein?</h4></div>
+    <div class="order-opts">
+      <button class="btn-back" style="padding:2px 4px" onclick="goBack()">← Back to main menu</button>
+      <button class="order-opt-btn" onclick="openApp()">
+        <span class="opt-icon">📱</span>
+        <div class="opt-text"><div class="opt-title">App Ya Website Kholein</div><div class="opt-sub">LOTS App ya lotswholesale.com par order karein</div></div>
+        <span style="color:#CCC;font-size:14px">›</span>
+      </button>
+      <button class="order-opt-btn" onclick="startPlaceHereFlow()">
+        <span class="opt-icon">🛍️</span>
+        <div class="opt-text"><div class="opt-title">Yahan Order Karein</div><div class="opt-sub">Chat mein products dhundein aur cart mein add karein</div></div>
+        <span style="color:#CCC;font-size:14px">›</span>
+      </button>
+      <button class="order-opt-btn" onclick="startRepeatOrderFlow()">
+        <span class="opt-icon">🔄</span>
+        <div class="opt-text"><div class="opt-title">Pichla Order Repeat Karein</div><div class="opt-sub">Apna past order dhundein aur dubara order karein</div></div>
+        <span style="color:#CCC;font-size:14px">›</span>
+      </button>
+    </div>
+  </div>`;
+  c.appendChild(d); scrollDown();
+}
+
+function openApp(){
+  el('orderChoicesWrap')?.remove();
+  addMsg('bot','LOTS App download karein ya website visit karein! 📱<br><br>🍎 <strong>App Store (iOS):</strong> <a href="#" style="color:var(--red);font-weight:600">Download Karein</a><br>🤖 <strong>Play Store (Android):</strong> <a href="#" style="color:var(--red);font-weight:600">Download Karein</a><br>🌐 <strong>Website:</strong> <a href="#" style="color:var(--red);font-weight:600">lotswholesale.com</a><br><br>Minimum order <strong>₹9,000</strong> · Free delivery on qualifying orders!');
+  setInput(true);
+}
+
+/* ── PRODUCT SEARCH & CART ── */
+function startPlaceHereFlow(){
+  el('orderChoicesWrap')?.remove();
+  cartItems=[];
+  addMsg('bot','Products search karein aur cart mein add karein! 🛍️<br>Search karo jaise "atta", "oil", "soap"…');
+  showProductSearch();
+}
+
+function showProductSearch(){
+  const c=el('msgs'),d=document.createElement('div');
+  d.className='card-wrap'; d.id='psWrap';
+  d.innerHTML=`<div class="ps-card">
+    <div class="ps-head"><h4>🔍 Product Search</h4><span id="psCartCount">0 items in cart</span></div>
+    <div class="ps-body">
+      <button class="btn-back" onclick="goBack()">← Back to main menu</button>
+      <div id="cartChipsArea" class="cart-chips-area" style="display:none">
+        <div class="cart-chips-label">🛒 Your Cart</div>
+        <div class="cart-chips-row" id="cartChipsRow"></div>
+      </div>
+      <div class="ps-search-bar">
+        <div class="ps-search-icon">🔍</div>
+        <input class="ps-input" id="psInput" placeholder="e.g. maggi, fortune oil, amul, pepsi, dettol…" oninput="searchProducts(this.value)"/>
+      </div>
+      <div class="ps-results" id="psResults"><div class="ps-hint">Oopar search karein products dhundhne ke liye</div></div>
+      <div class="ps-cart-bar" id="psCartBar">
+        <div class="ps-cart-summary">
+          <span class="ps-cart-label">Cart Total</span>
+          <span class="ps-cart-total" id="psCartTotal">₹0</span>
+        </div>
+        <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:6px 9px;margin-bottom:8px;font-size:10px;color:#92400E;line-height:1.7">
+          <strong>🧪 Sample IDs:</strong>
+          <span class="dc-sample-chip" onclick="el('f_ps_mid').value='5687000000134521';clrE('ps_mid')">Ramesh</span>
+          <span class="dc-sample-chip" onclick="el('f_ps_mid').value='5687000000412345';clrE('ps_mid')">Priya</span>
+          <span class="dc-sample-chip" onclick="el('f_ps_mid').value='5687000000856789';clrE('ps_mid')">Suresh</span>
+        </div>
+        <div class="fc-iw" id="w_ps_mid" style="margin-bottom:8px">
+          <div class="fc-icon">🪪</div>
+          <input class="fc-input" id="f_ps_mid" placeholder="Membership ID (16-digit)" inputmode="numeric" oninput="clrE('ps_mid')"/>
+        </div>
+        <div class="fc-err" id="e_ps_mid" style="margin-bottom:6px">Please enter your Membership ID</div>
+        <button class="ps-cart-submit" id="psSubmitBtn" onclick="submitNewOrder()">📦 Place Order →</button>
+      </div>
+    </div>
+  </div>`;
+  c.appendChild(d); scrollDown();
+  setTimeout(()=>el('psInput')?.focus(),300);
+}
+
+function searchProducts(q){
+  const box=el('psResults'); if(!box)return;
+  if(!q.trim()){
+    box.innerHTML='<div class="ps-hint">Oopar search karein products dhundhne ke liye</div>';
+    box.classList.remove('show'); return;
+  }
+  const ql=q.toLowerCase();
+  const res=PRODUCTS.filter(p=>p.name.toLowerCase().includes(ql)||p.category.toLowerCase().includes(ql)||p.unit.toLowerCase().includes(ql));
+  if(!res.length){box.innerHTML=`<div class="ps-empty">😔 "${q}" ke liye koi product nahi mila</div>`;box.classList.add('show');return;}
+  box.innerHTML=res.map(p=>`<div class="ps-result" data-pid="${p.id}">
+    <div class="ps-result-info">
+      <div class="ps-result-name">${p.name}</div>
+      <div class="ps-result-meta">${p.unit} · ${p.category}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <div style="text-align:right">
+        <div><span class="ps-price">₹${p.price}</span><span class="ps-mrp">₹${p.mrp}</span><span class="ps-disc">${p.discount}% off</span></div>
+      </div>
+      <div class="ps-result-action">${getResultBtnHtml(p.id)}</div>
+    </div>
+  </div>`).join('');
+  box.classList.add('show');
+}
+function getResultBtnHtml(pid){
+  const item=cartItems.find(x=>x.id===pid);
+  if(item) return `<div style="display:flex;align-items:center;gap:3px"><button class="chip-qty-btn" style="width:22px;height:22px;font-size:13px" onclick="resultQty('${pid}',-1)">−</button><span style="font-size:12px;font-weight:700;min-width:18px;text-align:center">${item.qty}</span><button class="chip-qty-btn" style="width:22px;height:22px;font-size:13px" onclick="resultQty('${pid}',1)">+</button></div>`;
+  return `<button class="ps-add" onclick="addToCart('${pid}')">+ Add</button>`;
+}
+function refreshResultBtn(pid){
+  const row=document.querySelector(`.ps-result[data-pid="${pid}"]`);
+  if(!row)return;
+  const area=row.querySelector('.ps-result-action');
+  if(area)area.innerHTML=getResultBtnHtml(pid);
+}
+function resultQty(pid,delta){
+  const ex=cartItems.find(x=>x.id===pid); if(!ex)return;
+  ex.qty+=delta;
+  if(ex.qty<=0)cartItems=cartItems.filter(x=>x.id!==pid);
+  renderCartChips(); updateCartSummary(); refreshResultBtn(pid);
+}
+
+function addToCart(pid){
+  const p=PRODUCTS.find(x=>x.id===pid); if(!p)return;
+  const ex=cartItems.find(x=>x.id===pid);
+  if(ex){ex.qty++;}else{cartItems.push({...p,qty:1});}
+  renderCartChips(); updateCartSummary(); refreshResultBtn(pid);
+}
+function changeCartQty(pid,delta){
+  const ex=cartItems.find(x=>x.id===pid); if(!ex)return;
+  ex.qty+=delta;
+  if(ex.qty<=0)cartItems=cartItems.filter(x=>x.id!==pid);
+  renderCartChips(); updateCartSummary(); refreshResultBtn(pid);
+}
+function removeFromCart(pid){
+  cartItems=cartItems.filter(x=>x.id!==pid);
+  renderCartChips(); updateCartSummary(); refreshResultBtn(pid);
+}
+function renderCartChips(){
+  const area=el('cartChipsArea'),row=el('cartChipsRow'); if(!area||!row)return;
+  if(!cartItems.length){area.style.display='none';row.innerHTML='';return;}
+  area.style.display='block';
+  row.innerHTML=cartItems.map(c=>`<div class="cart-chip">
+    <span class="cart-chip-name" title="${c.name}">${c.name.split(' ').slice(0,2).join(' ')}</span>
+    <div class="chip-qty-ctrl">
+      <button class="chip-qty-btn" onclick="changeCartQty('${c.id}',-1)">−</button>
+      <span class="chip-qty-num">${c.qty}</span>
+      <button class="chip-qty-btn" onclick="changeCartQty('${c.id}',1)">+</button>
+    </div>
+    <button class="chip-remove" onclick="removeFromCart('${c.id}')">✕</button>
+  </div>`).join('');
+}
+function updateCartSummary(){
+  const total=cartItems.reduce((s,x)=>s+x.price*x.qty,0);
+  const totalQty=cartItems.reduce((s,x)=>s+x.qty,0);
+  const bar=el('psCartBar'),tot=el('psCartTotal'),cnt=el('psCartCount');
+  if(bar)bar.className=cartItems.length?'ps-cart-bar show':'ps-cart-bar';
+  if(tot)tot.textContent='₹'+total.toLocaleString('en-IN');
+  if(cnt)cnt.textContent=totalQty?`${totalQty} item${totalQty>1?'s':''} in cart`:'0 items in cart';
+}
+function submitNewOrder(){
+  if(!cartItems.length){return;}
+  const mid=el('f_ps_mid')?.value.trim();
+  if(!mid){shwE('ps_mid');scrollDown();return;}
+  const member=Object.values(ORDERS).find(o=>o.memberId===mid);
+  const btn=el('psSubmitBtn');if(btn){btn.disabled=true;btn.textContent='Placing…';}
+  const ref='LOTS'+Date.now().toString().slice(-8);
+  const total=cartItems.reduce((s,x)=>s+x.price*x.qty,0);
+  const list=cartItems.map(x=>`${x.name} ×${x.qty}`).join(', ');
+  const name=member?member.customer:'Customer';
+  el('psWrap')?.remove();
+  addMsg('bot',`✅ <strong>Order Place Ho Gaya!</strong><br><br>👤 ${name}<br>🪪 Membership: <strong>${mid}</strong><br>📦 Items: ${list}<br>💰 Total: <strong>₹${total.toLocaleString('en-IN')}</strong><br>🔖 Reference: <span class="ref-badge">${ref}</span><br><br>Delivery <strong>24–48 hours</strong> mein hogi. 😊`);
+  cartItems=[];
+  setInput(true);
+}
+
+/* ── FLOW 3C: REPEAT PAST ORDER ── */
+function startRepeatOrderFlow(){
+  el('orderChoicesWrap')?.remove();
+  addMsg('bot','Apna pichla order dhundte hain! 🔄<br>Order ID ya registered mobile number enter karein:');
+  showRepeatLookup();
+}
+
+function showRepeatLookup(){
+  const c=el('msgs'),d=document.createElement('div');
+  d.className='card-wrap'; d.id='roWrap';
+  d.innerHTML=`<div class="ro-card">
+    <div class="ro-head"><h4>🔄 Past Order Dhundein</h4></div>
+    <div class="ro-body">
+      <button class="btn-back" onclick="goBack()">← Back to main menu</button>
+      <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:10.5px;color:#92400E;line-height:1.7">
+        <strong>🧪 Sample Test Data:</strong><br>
+        Order IDs: <strong>1540001</strong>, <strong>1540003</strong>, <strong>1540009</strong><br>
+        Mobiles: <strong>9810112233</strong>, <strong>9810556677</strong>, <strong>9810667788</strong>
+      </div>
+      <div class="fc-field">
+        <label class="fc-label">Order ID ya Registered Mobile *</label>
+        <div class="fc-iw"><div class="fc-icon">🔍</div><input class="fc-input" id="roSearchInput" placeholder="e.g. 1540001 or 9810112233"/></div>
+      </div>
+      <button class="ro-submit" onclick="loadPastOrder()">🔍 Order Dhundein</button>
+    </div>
+  </div>`;
+  c.appendChild(d); scrollDown();
+  setTimeout(()=>el('roSearchInput')?.focus(),300);
+}
+
+function loadPastOrder(){
+  const q=el('roSearchInput')?.value.trim();
+  if(!q){return;}
+  const o=findOrder(q);
+  el('roWrap')?.remove();
+  if(!o){
+    addMsg('bot',`"<strong>${q}</strong>" se koi order nahi mila. 😔<br>Please Order ID ya registered mobile check karein, ya call karein <strong>1860-123-5687</strong>.`);
+    setInput(true); return;
+  }
+  addMsg('bot',`Mil gaya! 🎉 <strong>${o.customer}</strong> ka order <strong>${o.orderId}</strong> (${o.orderDate})<br>Quantities edit kar sakte hain ya items remove karein:`);
+  window._repeatItems=o.items.map(i=>({name:i.name,qty:i.qty}));
+  window._repeatOrderId=o.orderId;
+  renderRepeatCard();
+}
+
+function renderRepeatCard(){
+  const items=window._repeatItems; if(!items)return;
+  const c=el('msgs'),d=document.createElement('div');
+  d.className='card-wrap'; d.id='repeatCardWrap';
+  d.innerHTML=buildRepeatCardHTML();
+  c.appendChild(d); scrollDown();
+}
+
+function buildRepeatCardHTML(){
+  const items=window._repeatItems||[];
+  const oid=window._repeatOrderId||'';
+  const list=items.map((it,i)=>`<div class="ro-item">
+    <div class="ro-name">${it.name}</div>
+    <div class="ro-ctrl">
+      <button class="ro-btn" onclick="rptQty(${i},-1)">−</button>
+      <span class="ro-qty-val">${it.qty}</span>
+      <button class="ro-btn" onclick="rptQty(${i},1)">+</button>
+    </div>
+    <button class="ro-del" onclick="rptRemove(${i})" title="Remove item">✕</button>
+  </div>`).join('');
+  return `<div class="ro-card">
+    <div class="ro-head"><h4>🔄 Past Order – ${oid}</h4></div>
+    <div class="ro-body">
+      <button class="btn-back" onclick="goBack()">← Back to main menu</button>
+      <div class="ro-list">${list||'<p style="text-align:center;color:#BBB;font-size:11px;padding:8px">Koi item nahi bacha</p>'}</div>
+      <p style="font-size:10px;color:var(--soft);margin-bottom:8px;text-align:center">✏️ Quantities edit karein ya items remove karein before ordering</p>
+      <button class="ro-submit" onclick="submitRepeatOrder()">📦 Yahi Order Repeat Karein →</button>
+    </div>
+  </div>`;
+}
+
+function rptQty(idx,delta){
+  const items=window._repeatItems; if(!items||!items[idx])return;
+  items[idx].qty=Math.max(1,items[idx].qty+delta);
+  const wrap=el('repeatCardWrap'); if(wrap){wrap.innerHTML=buildRepeatCardHTML();scrollDown();}
+}
+function rptRemove(idx){
+  const items=window._repeatItems; if(!items)return;
+  items.splice(idx,1);
+  if(!items.length){
+    el('repeatCardWrap')?.remove();
+    addMsg('bot','Saare items remove kar diye. 😊 Kuch aur order karein?');
+    setInput(true); return;
+  }
+  const wrap=el('repeatCardWrap'); if(wrap){wrap.innerHTML=buildRepeatCardHTML();scrollDown();}
+}
+function submitRepeatOrder(){
+  const items=window._repeatItems; if(!items||!items.length)return;
+  const ref='LOTS'+Date.now().toString().slice(-8);
+  const list=items.map(x=>`${x.name} ×${x.qty}`).join(', ');
+  el('repeatCardWrap')?.remove();
+  addMsg('bot',`✅ <strong>Repeat Order Place Ho Gaya!</strong><br><br>📦 Items: ${list}<br>🔖 Reference: <span class="ref-badge">${ref}</span><br><br>Delivery <strong>24–48 hours</strong> mein hogi. Shukriya! 🙏`);
+  window._repeatItems=null; window._repeatOrderId=null;
+  setInput(true);
+}
+
+/* ── STATUS FORM ── */
+function showStatusForm(){
+  const c=el('msgs'),f=document.createElement('div');
+  f.className='card-wrap'; f.id='stFrmWrap';
+  f.innerHTML=`<div class="form-card"><div class="fc-head"><h4>🔍 Track Complaint</h4></div><div class="fc-body" style="padding:10px 13px"><div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:10.5px;color:#92400E;line-height:1.7"><strong>🧪 Sample Test Data:</strong><br>Ref: <strong>LOTS20250105</strong> (Order 1540002)<br>Ref: <strong>LOTS20250108</strong> (Order 1540009)</div><div class="fc-field"><label class="fc-label">Reference / Order ID</label><div class="fc-iw"><div class="fc-icon">🔖</div><input class="fc-input" id="f_ref" placeholder="e.g. LOTS20250105 or 1540002"/></div></div><button class="fc-submit" onclick="submitSt()">Check Status →</button></div></div>`;
+  c.appendChild(f); scrollDown(); setInput(false);
+}
+async function submitSt(){
+  const ref=el('f_ref')?.value.trim(); if(!ref){alert('Please enter reference or order ID');return;}
+  el('stFrmWrap')?.remove(); setInput(true); addMsg('user',ref);
+  showTyp(); isTyping=true;
+  await new Promise(r=>setTimeout(r,200)); hideTyp();
+  const o=findOrder(ref);
+  if(o&&o.complaintRef){
+    addMsg('bot','Found your complaint — here\'s the status:');
+    addCard(`<div class="sc"><div class="sc-h">Complaint Status</div><div class="sc-b"><div class="sc-r"><span class="l">Ref.</span><span class="v">${o.complaintRef}</span></div><div class="sc-r"><span class="l">Order</span><span class="v">${o.orderId}</span></div><div class="sc-r"><span class="l">Status</span><span class="v"><span class="stag escalated">🔴 Escalated</span></span></div><div class="sc-r"><span class="l">TAT</span><span class="v">24–48 hrs</span></div></div></div>`);
+  } else if(ref.toUpperCase().startsWith('LOTS')){
+    addMsg('bot','Here\'s your complaint status:');
+    addCard(`<div class="sc"><div class="sc-h">Complaint Status</div><div class="sc-b"><div class="sc-r"><span class="l">Ref.</span><span class="v">${ref.toUpperCase()}</span></div><div class="sc-r"><span class="l">Status</span><span class="v"><span class="stag escalated">🔴 Escalated to Store</span></span></div><div class="sc-r"><span class="l">TAT</span><span class="v">24–48 hrs</span></div></div></div>`);
+  } else {
+    addMsg('bot',`Couldn't find a complaint for <strong>${ref}</strong>. Please check the number or call <strong>1860-123-5687</strong>.`);
+  }
+  isTyping=false;
+}
+
+/* ── N8N WEBHOOK ── */
+async function claude(userMsg){
+  const res=await fetch('https://automation.openmindhelpline.com/webhook/lots',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chatInput:userMsg,sessionId:sessionId})});
+  if(!res.ok)throw new Error(res.status);
+  const d=await res.json();
+  return typeof d==='string'?d:(d.output||d.message||d.text||'');
+}
+function parseAction(raw){
+  const m=raw.match(/\{[^}]*"action"\s*:\s*"[A-Z_]+"[^}]*\}/);
+  let action=null,text=raw;
+  if(m){try{action=JSON.parse(m[0]);text=raw.replace(m[0],'').trim();}catch(e){}}
+  return{text,action};
+}
+
+/* ── ORDER LOOKUP ── */
+async function doLookup(intent){
+  setInput(false);
+  addMsg('bot',intent==='delayed'?`Please share your <strong>Order ID, Mobile, or Membership ID</strong> and I'll pull up your order.`:`To register your damage complaint, please share your <strong>Order ID, Mobile, or Membership ID</strong>.`);
+  setInput(true); window._pLookup=intent;
+}
+async function resolveLookup(q,intent){
+  window._pLookup=null; showTyp(); isTyping=true;
+  await new Promise(r=>setTimeout(r,150)); hideTyp();
+  const o=findOrder(q);
+  if(!o){addMsg('bot',`I couldn't find an order for <strong>${q}</strong>. Please double-check, or call <strong>1860-123-5687</strong>.`);isTyping=false;setInput(true);return;}
+  hist.push({role:'user',content:`[SYSTEM: Order found — ID:${o.orderId}, Customer:${o.customer}, Status:${o.actualStatus}]`});
+  const ctx=intent==='delayed'
+    ?`[SYSTEM: Order ${o.orderId} for ${o.customer} is delayed. Reason: "${o.delayReason}". Detail: "${o.delayDetail}". ETA: ${o.estimatedDelivery}. Acknowledge warmly, explain delay simply, apologise, ask if they want to register a formal complaint.]`
+    :`[SYSTEM: Order ${o.orderId} for ${o.customer} — damage reported. Items: ${o.items.map(i=>i.name).join(', ')}. Express sympathy, say you'll open a complaint form for photos and details.]`;
+  const reply=await claude(ctx).catch(()=>null);
+  if(reply){const{text}=parseAction(reply);hist.push({role:'assistant',content:text});addMsg('bot',text.replace(/\n/g,'<br>'));}
+  addCard(renderOrderCard(o,intent));
+  if(intent==='delayed'){addMsg('bot','Would you like me to register a formal complaint for this delay?');window._pConfirm={o,intent};}
+  else{showComplaintForm(o,intent);}
+  isTyping=false;
+}
+
+/* ── MAIN SEND ── */
+async function send(){
+  if(isTyping||awaitingForm)return;
+  const inp=el('inp'),text=inp.value.trim(); if(!text)return;
+  inp.value=''; inp.style.height='18px'; el('sendBtn').disabled=true;
+  addMsg('user',text); hist.push({role:'user',content:text});
+
+  if(window._pLookup){const i=window._pLookup;setInput(false);await resolveLookup(text,i);return;}
+  if(window._pConfirm){
+    const{o,intent}=window._pConfirm; window._pConfirm=null;
+    if(/haan|ha|yes|ok|sure|register|complaint|darz|theek|zaroor|karo/i.test(text)){showComplaintForm(o,intent);}
+    else{addMsg('bot','No problem! Just say "register complaint" anytime if you change your mind. Anything else I can help with?');setInput(true);}
+    return;
+  }
+
+  isTyping=true; setInput(false); showTyp();
+  try{
+    const raw=await claude(text); hideTyp();
+    const{text:t,action}=parseAction(raw);
+    if(t){hist.push({role:'assistant',content:t});addMsg('bot',t.replace(/\n/g,'<br>'));}
+    if(action){setTimeout(async()=>{  /* 0ms — process action immediately after message renders */
+      if(action.action==='LOOKUP_ORDER')await doLookup(action.intent);
+      else if(action.action==='SHOW_STATUS_FORM')showStatusForm();
+      else if(action.action==='REGISTER_COMPLAINT'){
+        const cType=action.complaint_type||'delayed';
+        const cOrder=action.order_id?ORDERS[action.order_id]:null;
+        showDirectComplaintForm(cType,cOrder||null);
+      }
+      else setInput(true);
+    },0);}else{setInput(true);}
+  }catch{
+    hideTyp();
+    const t=text.toLowerCase();
+    if(/delay|nahi aaya|late|deliver|नहीं|देरी/.test(t)){addMsg('bot','Sorry your order hasn\'t arrived! Please share your Order ID or mobile number.');window._pLookup='delayed';}
+    else if(/damage|broken|toota|kharab|crack|torn|leak/.test(t)){addMsg('bot','So sorry about the damage! Please share your Order ID or mobile number.');window._pLookup='damaged';}
+    else if(/status|track|ref|complaint/.test(t)){showStatusForm();}
+    else{addMsg('bot','I\'m here to help! Tell me about a delayed or damaged order, or ask for your complaint status.');}
+    setInput(true);
+  }
+  isTyping=false;
+}
+
+/* ── WIDGET OPEN/CLOSE ── */
+let isOpen=false,unread=0;
+el('chatLauncher').onclick=()=>{el('chatPanel').classList.add('open');el('chatLauncher').style.display='none';isOpen=true;unread=0;el('notifBadge').style.display='none';setTimeout(()=>el('inp').focus(),300);};
+el('chatClose').onclick=()=>{el('chatPanel').classList.remove('open');el('chatLauncher').style.display='flex';isOpen=false;};
+
+/* ── TICKER ── */
+const TICKERS=['Ramdan-e-Khas - upto 50% Discount on MRP','Lots Kirana-Karnival - Upto 70% off','24/7 support on chat — koi intezaar nahi','Summor Refreshing Offeres upto 55%off on MRP'];
+let ti=0;
+setInterval(()=>{ti=(ti+1)%TICKERS.length;const t=el('tickerText');if(t){t.style.opacity=0;setTimeout(()=>{t.textContent=TICKERS[ti];t.style.opacity=1;},300);}},4000);
+
+/* ── WELCOME + RESET ── */
+async function startChat(){
+  el('msgs').innerHTML=''; hist.length=0;
+  awaitingForm=false;currentOrder=null;uploadedFiles=[];cartItems=[];
+  window._pLookup=null;window._pConfirm=null;window._repeatItems=null;window._repeatOrderId=null;
+  setInput(false); showTyp();
+  await new Promise(r=>setTimeout(r,300)); hideTyp();
+  hist.push({role:'assistant',content:'Welcome shown.'});
+  addMsg('bot',`Namaskar! 🙏 I'm your <strong>LOTS AI Support</strong> assistant.<br><br>Aap <strong>Hindi, English, ya Hinglish</strong> mein baat kar sakte hain <br></em>`);
+  showSuggestions();
+  setInput(true);
+}
+function resetChat(){startChat();}
+window.onload=()=>startChat();
+</script>
+
+</body>
+</html>
